@@ -11,7 +11,7 @@ const env = serverApiKey.startsWith("sk_production") ? "production" : "staging";
 const testnetTokenLocator =
   "solana:7EivYFyNfgGj8xbUymR7J4LuxUHLKRzpLaERHLvi7Dgu";
 const mainnetTokenLocator =
-  "solana-devnet:4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU";
+  "solana:6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN";
 
 const baseUrl = env === "production"
   ? "https://www.crossmint.com"
