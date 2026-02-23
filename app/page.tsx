@@ -39,7 +39,7 @@ export default function Home() {
     setAmount((prev) => {
       let next: string;
       if (key === "⌫") {
-        next = prev.length > 1 ? prev.slice(0, -1) : "0";
+        next = prev.length > 1 ? prev.slice(0, -1) : "1";
       } else if (key === ".") {
         next = prev.includes(".") ? prev : `${prev}.`;
       } else {
