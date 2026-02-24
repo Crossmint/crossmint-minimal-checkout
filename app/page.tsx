@@ -17,15 +17,37 @@ export default function Home() {
   const [amount, setAmount] = useState("1");
   const [debouncedAmount, setDebouncedAmount] = useState("1");
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [checkoutReady, setCheckoutReady] = useState(false);
   const { order } = useCrossmintCheckout();
 
   console.log("[order] phase:", order?.phase, order);
+
+  // Listen for iframe postMessage events to detect when the Apple Pay button renders
+  useEffect(() => {
+    const handler = (e: MessageEvent) => {
+      const msg = e.data;
+      if (typeof msg !== "object" || msg == null) return;
+      console.log("[postMessage]", msg);
+      if (msg.event === "ui:express-checkout.ready") {
+        setCheckoutReady(true);
+      }
+      // Fallback: height change with meaningful size means content rendered
+      if (msg.event === "ui:height.changed") {
+        setCheckoutReady(true);
+      }
+    };
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, []);
 
   const scheduleDebounce = useCallback((next: string) => {
     if (timerRef.current) clearTimeout(timerRef.current);
     const parsed = Number.parseFloat(next);
     if (!Number.isNaN(parsed) && parsed >= MIN_AMOUNT) {
-      timerRef.current = setTimeout(() => setDebouncedAmount(next), 500);
+      timerRef.current = setTimeout(() => {
+        setDebouncedAmount(next);
+        setCheckoutReady(false);
+      }, 500);
     }
   }, []);
 
@@ -53,7 +75,10 @@ export default function Home() {
   const handlePreset = (value: string) => {
     setAmount(value);
     if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => setDebouncedAmount(value), 500);
+    timerRef.current = setTimeout(() => {
+      setDebouncedAmount(value);
+      setCheckoutReady(false);
+    }, 500);
   };
 
   const { data } = useQuery({
@@ -110,36 +135,43 @@ export default function Home() {
       </div>
 
       {/* Checkout */}
-      <div className="w-full min-h-[60px]">
-        {data && (
-          <CrossmintEmbeddedCheckout
-            key={data.orderId}
-            orderId={data.orderId}
-            clientSecret={data.clientSecret}
-            payment={{
-              crypto: { enabled: false },
-              fiat: {
-                enabled: true,
-                allowedMethods: {
-                  applePay: true,
-                  card: false,
-                  googlePay: false,
-                },
-              },
-            }}
-            appearance={{
-              variables: {
-                colors: {
-                  backgroundPrimary: "#000000",
-                },
-              },
-              rules: {
-                DestinationInput: { display: "hidden" },
-                ReceiptEmailInput: { display: "hidden" },
-              },
-            }}
-          />
+      <div className="w-full min-h-[60px] relative">
+        {!checkoutReady && (
+          <div className="flex items-center justify-center h-[48px] bg-white rounded-md">
+            <div className="w-5 h-5 border-2 border-neutral-300 border-t-black rounded-full animate-spin" />
+          </div>
         )}
+        <div style={{ visibility: checkoutReady ? "visible" : "hidden", position: checkoutReady ? "relative" : "absolute" }}>
+          {data && (
+            <CrossmintEmbeddedCheckout
+              key={data.orderId}
+              orderId={data.orderId}
+              clientSecret={data.clientSecret}
+              payment={{
+                crypto: { enabled: false },
+                fiat: {
+                  enabled: true,
+                  allowedMethods: {
+                    applePay: true,
+                    card: false,
+                    googlePay: false,
+                  },
+                },
+              }}
+              appearance={{
+                variables: {
+                  colors: {
+                    backgroundPrimary: "#000000",
+                  },
+                },
+                rules: {
+                  DestinationInput: { display: "hidden" },
+                  ReceiptEmailInput: { display: "hidden" },
+                },
+              }}
+            />
+          )}
+        </div>
       </div>
     </div>
   );
