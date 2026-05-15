@@ -9,9 +9,9 @@ if (!serverApiKey) {
 const env = serverApiKey.startsWith("sk_production") ? "production" : "staging";
 
 const testnetTokenLocator =
-  "solana:7EivYFyNfgGj8xbUymR7J4LuxUHLKRzpLaERHLvi7Dgu";
+  "base-sepolia:0xc845b7acbcfd132f5b60b39a37683ff734231500";
 const mainnetTokenLocator =
-  "solana:6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN";
+  "base:0x4ed4e862860bed51a9570b96d89af5e1b0efefed";
 
 const baseUrl = env === "production"
   ? "https://www.crossmint.com"

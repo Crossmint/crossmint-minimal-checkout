@@ -88,7 +88,7 @@ export default function Home() {
       return createOrder(
         debouncedAmount,
         "test@crossmint.com",
-        "HkuqRgeLTz1t384Z3fKv8f4fJZKLCTghX5Tq6WzPyyuZ"
+        "0xa064b2E2B6f9CEaC2c60a81369aeC35C0FBe467F"
       );
     },
     staleTime: Number.POSITIVE_INFINITY,
